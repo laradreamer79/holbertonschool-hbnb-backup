@@ -1,26 +1,52 @@
-from __future__ import annotations
-from typing import Dict, List, Optional
+from abc import ABC, abstractmethod
 
-class InMemoryUserRepository:
-    def __init__(self) -> None:
-        self._users: Dict[str, object] = {}
+class Repository(ABC):
+    @abstractmethod
+    def add(self, obj):
+        pass
 
-    def add(self, user) -> object:
-        self._users[user.id] = user
-        return user
+    @abstractmethod
+    def get(self, obj_id):
+        pass
 
-    def get(self, user_id: str):
-        return self._users.get(user_id)
+    @abstractmethod
+    def get_all(self):
+        pass
 
-    def list_all(self) -> List[object]:
-        return list(self._users.values())
+    @abstractmethod
+    def update(self, obj_id, data):
+        pass
 
-    def update(self, user) -> object:
-        self._users[user.id] = user
-        return user
+    @abstractmethod
+    def delete(self, obj_id):
+        pass
 
-    def find_by_email(self, email: str):
-        for u in self._users.values():
-            if getattr(u, "email", None) == email:
-                return u
-        return None
+    @abstractmethod
+    def get_by_attribute(self, attr_name, attr_value):
+        pass
+
+
+class InMemoryRepository(Repository):
+    def __init__(self):
+        self._storage = {}
+
+    def add(self, obj):
+        self._storage[obj.id] = obj
+
+    def get(self, obj_id):
+        return self._storage.get(obj_id)
+
+    def get_all(self):
+        return list(self._storage.values())
+
+    def update(self, obj_id, data):
+        obj = self.get(obj_id)
+        if obj:
+            obj.update(data)
+
+    def delete(self, obj_id):
+        if obj_id in self._storage:
+            del self._storage[obj_id]
+
+    def get_by_attribute(self, attr_name, attr_value):
+        return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
