@@ -10,6 +10,15 @@ user_input = api.model("UserInput", {
     "email": fields.String(required=True),
 })
 
+# Update (PUT) - optional
+user_update = api.model("UserUpdate", {
+    "first_name": fields.String(required=False),
+    "last_name": fields.String(required=False),
+    "email": fields.String(required=False),
+    "password": fields.String(required=False),
+    "is_admin": fields.Boolean(required=False),
+})
+
 user_output = api.model("User", {
     "id": fields.String(readOnly=True),
     "first_name": fields.String,
@@ -58,7 +67,7 @@ class UserItem(Resource):
             api.abort(404, "User not found")
         return serialize_user(user), 200
 
-    @api.expect(user_input, validate=True)
+    @api.expect(user_update, validate=True)
     @api.marshal_with(user_output)
     def put(self, user_id):
         try:
