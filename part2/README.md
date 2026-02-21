@@ -1,15 +1,21 @@
 # HBnB Evolution: Part 2 — Business Logic & API Layer
 ## 📖 Table of Contents
-- Introduction
-- Architecture & Design Patterns
-- Technical Implementation Details
-- The Business Logic Layer (Models)
-- The Persistence Layer (Repository)
-- The Service Layer (Facade)
-- The Presentation Layer (API)
-- API Endpoints Reference
-- Testing and Validation
-- Installation and Setup
+
+1. [Introduction](#-introduction)
+2. [Architecture & Design Patterns](#-architecture--design-patterns)
+3. [Technical Implementation Details](#-technical-implementation-details)
+    * [The Business Logic Layer (Models)](#1-the-business-logic-layer-models)
+    * [The Persistence Layer (Repository)](#2-the-persistence-layer-repository)
+    * [The Service Layer (Facade)](#3-the-service-layer-facade)
+    * [The Presentation Layer (API)](#4-the-presentation-layer-api)
+4. [API Endpoints Reference](#-api-endpoints-reference)
+5. [Running Tests](#-running-tests)
+    * [Business Logic Validation](#-business-logic-validation)
+    * [API Manual Testing using cURL](#-api-manual-testing-using-curl)
+6. [Installation and Setup](#-installation-and-setup)
+7. [Automated Unit Testing](#-automated-unit-testing)
+8. [Detailed Testing Report Summary](#-detailed-testing-report-summary)
+9. [Authors](#-authors)
 -----------------------------------
 ## 📖 Introduction
 HBnB Evolution is a modular vacation rental management system. In this second phase of development, we have implemented the core Business Logic and the RESTful API. This implementation emphasizes a clean separation of concerns, ensuring that each component—from user management to place reviews—is decoupled and independently testable.
