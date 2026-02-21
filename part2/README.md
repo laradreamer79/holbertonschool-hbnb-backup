@@ -1,5 +1,5 @@
 # HBnB Evolution: Part 2 — Business Logic & API Layer
-## 📖 Table of Contents
+## Table of Contents
 
 1. [Introduction](#-introduction)
 2. [Architecture & Design Patterns](#-architecture--design-patterns)
@@ -17,11 +17,13 @@
 8. [Detailed Testing Report Summary](#-detailed-testing-report-summary)
 9. [Authors](#-authors)
 -----------------------------------
-## 📖 Introduction
+
+## Introduction
 HBnB Evolution is a modular vacation rental management system. In this second phase of development, we have implemented the core Business Logic and the RESTful API. This implementation emphasizes a clean separation of concerns, ensuring that each component—from user management to place reviews—is decoupled and independently testable.
+
 -----------------------------------
 
-## 🏗️ Architecture & Design Patterns
+## Architecture & Design Patterns
 The project follows a 3-Tier Architecture (Presentation, Business Logic, and Persistence) connected via the Facade Pattern.
 
 ## Key Patterns Used:
@@ -30,14 +32,14 @@ The project follows a 3-Tier Architecture (Presentation, Business Logic, and Per
 - Singleton Pattern: The facade is instantiated once and shared across the application to maintain a consistent state.
 - Data Transfer Objects (DTOs): We use serialize_... methods in the API layer to format model data into JSON, ensuring internal logic doesn't leak to the client.
 --------------------------------------------
-## 🛠️ Technical Implementation Details
+## Technical Implementation Details
 1. The Business Logic Layer (Models)
 All entities (User, Place, Review, Amenity) inherit from a BaseModel that provides:
 - A unique uuid4 identifier.
 - created_at and updated_at timestamps.
 - An update() method for bulk attribute modification.
 
-## 🛡️ Robust Validation (validators.py)
+## Robust Validation (validators.py)
 Data integrity is enforced at the model level using custom validator functions. Every time a model is created or updated, the validate() method is called to ensure:
 - Users: Valid email formats and required names.
 - Places: Price must be positive; Latitude (-90 to 90) and Longitude (-180 to 180) must be within geo-spatial bounds.
@@ -61,9 +63,8 @@ Built with Flask-RESTx, the API is organized into Namespaces
 - Error Handling: Uses api.abort() to return clear, standard HTTP error codes (400 for bad data, 404 for missing resources).
 ---
 
-## 🌐 API Endpoints Reference
+## API Endpoints Reference
 
----
 ### **Users**
 
 | Method | Endpoint | Description |
@@ -105,9 +106,9 @@ Built with Flask-RESTx, the API is organized into Namespaces
 | **GET** | `/reviews/places/<id>/reviews` | Get all reviews for a specific place |                                           ---
 ---
 
-## 🧪 Running Tests
+## Running Tests
 
-### 🎯 Objective:
+### Objective:
 The primary goal of this phase is to ensure the **reliability and integrity** of the HBnB API.
 
 This involves:
@@ -117,7 +118,7 @@ This involves:
 
 ---
 
-## 🛡️ 1. Business Logic Validation
+## 1. Business Logic Validation
 Before exposing endpoints, we implemented **strict validation checks** within the **Model Layer** to prevent "garbage data" from entering the system.
 
 | Entity | Attribute | Validation Rule |
@@ -141,13 +142,12 @@ python3 tests/test_models_basic.py
 ```
 ---
 
-## 🚀 API Manual Testing using cURL
+## API Manual Testing using cURL
 This section documents the manual testing performed on all API endpoints, covering both positive (Success) and negative (Failure) scenarios to ensure robust validation and error handling.
----
 
----
-1- User Operations (/users/)
-### ✅ Success: Create a New User
+
+### 1- User Operations (/users/)
+#### *Success*: Create a New User
 ```
 curl -X POST "http://127.0.0.1:5000/users/" \
      -H "Content-Type: application/json" \
@@ -155,7 +155,7 @@ curl -X POST "http://127.0.0.1:5000/users/" \
 ```
 - Expected Response: 201 Created with the full user object (id, created_at, etc.).
 
-### ❌ Failure: Duplicate Email
+#### *Failure*: Duplicate Email
 ```
 curl -X POST "http://127.0.0.1:5000/users/" \
      -H "Content-Type: application/json" \
@@ -163,7 +163,7 @@ curl -X POST "http://127.0.0.1:5000/users/" \
 ```
 - Expected Response: 400 Bad Request | {"message": "Email already exists"}.
 
-### ❌ Failure: Invalid Email Format
+#### *Failure*: Invalid Email Format
 ```
 curl -X POST "http://127.0.0.1:5000/users/" \
      -H "Content-Type: application/json" \
@@ -172,8 +172,8 @@ curl -X POST "http://127.0.0.1:5000/users/" \
 -Expected Response: 400 Bad Request | {"message": "email must be a valid email address"}.
 ___
 
-2- Amenity Operations (/amenities/)
-### ✅ Success: Create an Amenity
+### 2- Amenity Operations (/amenities/)
+#### *Success*: Create an Amenity
 ```
 curl -X POST "http://127.0.0.1:5000/amenities/" \
      -H "Content-Type: application/json" \
@@ -181,7 +181,7 @@ curl -X POST "http://127.0.0.1:5000/amenities/" \
 ```
 - Expected Response: 201 Created.
 
-### ❌ Failure: Empty Amenity Name
+#### *Failure*: Empty Amenity Name
 ```
 curl -X POST "http://127.0.0.1:5000/amenities/" \
      -H "Content-Type: application/json" \
@@ -190,8 +190,8 @@ curl -X POST "http://127.0.0.1:5000/amenities/" \
 - Expected Response: 400 Bad Request | {"message": "name is required"}.
 ___
 
-3- Place Operations (/places/)
-### ✅ Success: Create a Place (Linked with Owner and Amenities)
+### 3- Place Operations (/places/)
+#### *Success*: Create a Place (Linked with Owner and Amenities)
 ```
 curl -X POST "http://127.0.0.1:5000/places/" \
      -H "Content-Type: application/json" \
@@ -207,7 +207,7 @@ curl -X POST "http://127.0.0.1:5000/places/" \
 ```
 - Expected Response: 201 Created.
 
-### ❌ Failure: Invalid Latitude
+#### *Failure*: Invalid Latitude
 ```
 curl -X POST "http://127.0.0.1:5000/places/" \
      -H "Content-Type: application/json" \
@@ -215,7 +215,7 @@ curl -X POST "http://127.0.0.1:5000/places/" \
 ```
 - Expected Response: 400 Bad Request | {"message": "latitude must be between -90.0 and 90.0"}.
 
-### ❌ Failure: Non-Existent Owner
+#### *Failure*: Non-Existent Owner
 ```
 curl -X POST "http://127.0.0.1:5000/places/" \
      -H "Content-Type: application/json" \
@@ -224,8 +224,8 @@ curl -X POST "http://127.0.0.1:5000/places/" \
 - Expected Response: 400 Bad Request | {"message": "Owner not found"}.
 ___
 
-4- Review Operations (/reviews/)
-### ✅ Success: Create a Review
+### 4- Review Operations (/reviews/)
+#### *Success*: Create a Review
 ```
 curl -X POST "http://127.0.0.1:5000/reviews/" \
      -H "Content-Type: application/json" \
@@ -238,7 +238,7 @@ curl -X POST "http://127.0.0.1:5000/reviews/" \
 ```
 - Expected Response: 201 Created.
 
-### ❌ Failure: Rating Out of Range (e.g., 6)
+#### *Failure*: Rating Out of Range (e.g., 6)
 ```
 curl -X POST "http://127.0.0.1:5000/reviews/" \
      -H "Content-Type: application/json" \
@@ -246,15 +246,15 @@ curl -X POST "http://127.0.0.1:5000/reviews/" \
 ```
 - Expected Response: 400 Bad Request | {"message": "rating must be between 1 and 5"}.
 
-### ✅ Success: Delete a Review
+#### *Success*: Delete a Review
 ```
 curl -X DELETE "http://127.0.0.1:5000/reviews/REVIEW_ID"
 ```
 - Expected Response: 200 OK | {"message": "Review deleted"}.
 ___
 
-5- Fetching Data (GET Operations)
-### 🔍 API Verification Examples
+### 5- Fetching Data (GET Operations)
+#### API Verification Examples
 
 | Operation | Command | Expected Result |
 | :--- | :--- | :--- |
@@ -264,7 +264,7 @@ ___
 | **List Place Reviews** | `curl http://127.0.0.1:5000/reviews/places/<ID>/reviews` | `200 OK` List of reviews for that place. |
 
 ---
-## 🚦 Installation and Setup
+## Installation and Setup
 1. Clone the Repository:
 ```
 git clone <repository_url>
@@ -287,7 +287,7 @@ python run.py
 - The API will be available at http://0.0.0.0:5000/.
 
 ---
-## 🤖 4. Automated Unit Testing
+## 4. Automated Unit Testing
 To ensure long-term stability and prevent regressions, we implemented automated tests using unittest.
 - Example: Testing User Persistence:
 ```
@@ -311,26 +311,26 @@ class TestHBnBAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 404)
 ```
 ---
-## 📊 5. Detailed Testing Report summary
+## 5. Detailed Testing Report summary
 
-### ✅ Test Execution Summary
+### Test Execution Summary
 
 | Test Category | Description | Status |
 | :--- | :--- | :--- |
-| **Functional** | Create, Read, Update, and Delete operations for all entities. | ✅ PASS |
-| **Validation** | Rejection of empty strings, invalid emails, and out-of-range numbers. | ✅ PASS |
-| **Integrity** | Ensuring a Place cannot be created without a valid Owner ID. | ✅ PASS |
-| **Relational** | Deleting a Review correctly removes it from the Place's review list. | ✅ PASS |
-| **Error Handling** | API returns appropriate `400`, `404`, and `409` (Conflict) codes. | ✅ PASS |
+| **Functional** | Create, Read, Update, and Delete operations for all entities. | PASS |
+| **Validation** | Rejection of empty strings, invalid emails, and out-of-range numbers. | PASS |
+| **Integrity** | Ensuring a Place cannot be created without a valid Owner ID. | PASS |
+| **Relational** | Deleting a Review correctly removes it from the Place's review list. | PASS |
+| **Error Handling** | API returns appropriate `400`, `404`, and `409` (Conflict) codes. | PASS |
 
-## 🏁 Expected Outcome:
+## Expected Outcome:
 ## By following this testing workflow, the project ensures:
 - Model Reliability: Data is validated at the core before storage.
 - API Consistency: Endpoints adhere strictly to the REST architectural style.
 - Documentation Accuracy: The Swagger UI matches the actual code implementation.
 - Resilience: The application handles edge cases and user errors gracefully.
 ---
-## 👥 Authors
+## Authors
 * **Afnan Alfaidi** - [GitHub Profile](https://github.com/Afnan2049)
 * **Lara Alzannan** - [GitHub Profile](https://github.com/laradreamer79)
 ---
