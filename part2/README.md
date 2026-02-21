@@ -83,7 +83,35 @@ PUT,/users/<id>,Update user info
 | **GET** | `/reviews/` | List all reviews |
 | **GET** | `/reviews/<id>` | Get specific review details |
 | **DELETE** | `/reviews/<id>` | Delete a review (updates the Place's review list) |
-| **GET** | `/reviews/places/<id>/reviews` | Get all reviews for a specific place |                                                                                           ---                                                                                                                                                                           ### 🧪 Running Tests
+| **GET** | `/reviews/places/<id>/reviews` | Get all reviews for a specific place |                                           ---
+### 🧪 Running Tests
+
+## 🎯 Objective
+> The primary goal of this phase is to ensure the **reliability and integrity** of the HBnB API.
+
+This involves:
+* **Verifying business logic:** Ensuring data is handled according to specified rules.
+* **API Communication:** Confirming the API layer communicates accurately with the **Facade**.
+* **Error Handling:** Ensuring the system gracefully handles invalid inputs.
+
+---
+
+## 🛡️ 1. Business Logic Validation
+Before exposing endpoints, we implemented **strict validation checks** within the **Model Layer** to prevent "garbage data" from entering the system.
+
+| Entity | Attribute | Validation Rule |
+| :--- | :--- | :--- |
+| **User** | `first_name`, `last_name`, `email` | Must be non-empty strings. |
+| | `email` | Must match a valid email regex pattern. |
+| **Place** | `title` | Cannot be empty; maximum 100 characters. |
+| | `price` | Must be a positive float/integer ($> 0$). |
+| | `latitude` | Range: $[-90.0, 90.0]$. |
+| | `longitude` | Range: $[-180.0, 180.0]$. |
+| **Review** | `rating` | Must be an integer between $1$ and $5$. |
+| | `text` | Required; cannot be empty. |
+| **Amenity** | `name` | Maximum 50 characters; required. |
+
+---
 
 To run the basic model tests, execute the following command in your terminal:
 
@@ -97,6 +125,7 @@ python3 tests/test_models_basic.py
 You can test the API directly using `curl`. Run the following command in your terminal to register a new user:
 
 ## Register a User
+(✅ Successful Case):
 
 ```
 curl -X POST "[http://127.0.0.1:5000/users/](http://127.0.0.1:5000/users/)" \
@@ -108,6 +137,23 @@ curl -X POST "[http://127.0.0.1:5000/users/](http://127.0.0.1:5000/users/)" \
           "password": "securepassword"
          }'
 ```
+- Expected Response: 201 Created with the JSON object containing the generated id.
+---
+---
+## (❌ Failed Case: Invalid Data)
+```
+curl -X POST "http://127.0.0.1:5000/places/" \
+     -H "Content-Type: application/json" \
+     -d '{
+         "title": "Desert Retreat",
+         "price": -50.0,
+         "latitude": 120.0,
+         "longitude": -122.4,
+         "owner_id": "valid-id-here"
+     }'
+```
+- Expected Response: 400 Bad Request.
+- Reason: Price is negative and Latitude is out of bounds ($120.0 > 90.0$).
 ---
 🚦 Installation and Setup
 1. Clone the Repository:
@@ -128,7 +174,52 @@ pip install -r requirements.txt
 ```
 python run.py
 ```
-The API will be available at http://0.0.0.0:5000/.
+
+- The API will be available at http://0.0.0.0:5000/.
+
+---
+## 🤖 4. Automated Unit Testing
+To ensure long-term stability and prevent regressions, we implemented automated tests using unittest.
+- Example: Testing User Persistence:
+```
+import unittest
+from app import create_app
+
+class TestHBnBAPI(unittest.TestCase):
+    def setUp(self):
+        self.app = create_app()
+        self.client = self.app.test_client()
+
+    def test_amenity_creation(self):
+        """Test that a valid amenity can be created"""
+        response = self.client.post('/amenities/', json={"name": "WiFi"})
+        self.assertEqual(response.status_code, 201)
+        self.assertIn("WiFi", response.get_data(as_text=True))
+
+    def test_get_nonexistent_user(self):
+        """Test error handling for invalid IDs"""
+        response = self.client.get('/users/invalid-uuid-123')
+        self.assertEqual(response.status_code, 404)
+```
+---
+## 📊 5. Detailed Testing Report summary
+
+### ✅ Test Execution Summary
+
+| Test Category | Description | Status |
+| :--- | :--- | :--- |
+| **Functional** | Create, Read, Update, and Delete operations for all entities. | ✅ PASS |
+| **Validation** | Rejection of empty strings, invalid emails, and out-of-range numbers. | ✅ PASS |
+| **Integrity** | Ensuring a Place cannot be created without a valid Owner ID. | ✅ PASS |
+| **Relational** | Deleting a Review correctly removes it from the Place's review list. | ✅ PASS |
+| **Error Handling** | API returns appropriate `400`, `404`, and `409` (Conflict) codes. | ✅ PASS |
+
+## 🏁 Expected Outcome:
+## By following this testing workflow, the project ensures:
+- Model Reliability: Data is validated at the core before storage.
+- API Consistency: Endpoints adhere strictly to the REST architectural style.
+- Documentation Accuracy: The Swagger UI matches the actual code implementation.
+- Resilience: The application handles edge cases and user errors gracefully.
 ---
 ## 👥 Authors
 * **Afnan Alfaidi** - [GitHub Profile](https://github.com/Afnan2049)
