@@ -87,7 +87,7 @@ class HBnBFacade:
         amenity.save()
         return amenity
 
-    # ---------- Places ----------
+    # ---------- Places ---------- #
     def create_place(self, data: Dict[str, Any]) -> Place:
         title = (data.get("title") or "").strip()
         description = data.get("description") or ""
@@ -114,12 +114,23 @@ class HBnBFacade:
             price=price,
             latitude=latitude,
             longitude=longitude,
-            owner=owner,
-            amenities=amenities,
+            # owner=owner,
+            owner_id=owner.id,
+            # amenities=amenities,
         )
-        place.validate()
-        return self.place_repo.add(place)
 
+        # --- أسطر مضافة حديثاً (لإدارة حالة الخصائص الداخلية) ---
+        for a in amenities:
+            place.add_amenity_id(a.id)
+
+        # --- أسطر مضافة حديثاً (للحقن الديناميكي لمراجع الكائنات) ---
+        place.owner = owner
+        place.amenities = amenities
+
+        # place.validate()
+        # تم حذف السطر أعلاه (Redundancy Elimination): التهيئة في Place تستدعيها تلقائياً.
+
+        return self.place_repo.add(place)
     def get_place(self, place_id: str) -> Optional[Place]:
         return self.place_repo.get(place_id)
 

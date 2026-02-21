@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
 
-from app.services import facade  # facade instance (Singleton)
+from app.services.facade import facade  # facade instance (Singleton)
 
 api = Namespace("amenities", description="Amenity operations")
 
