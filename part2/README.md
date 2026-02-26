@@ -33,7 +33,8 @@ The project follows a 3-Tier Architecture (Presentation, Business Logic, and Per
 - Data Transfer Objects (DTOs): We use serialize_... methods in the API layer to format model data into JSON, ensuring internal logic doesn't leak to the client.
 --------------------------------------------
 ## Technical Implementation Details <a name="tech-details"></a>
-1. The Business Logic Layer (Models)
+
+1. The Business Logic Layer (Models) <a name="logic-models"></a>
 All entities (User, Place, Review, Amenity) inherit from a BaseModel that provides:
 - A unique uuid4 identifier.
 - created_at and updated_at timestamps.
@@ -256,12 +257,12 @@ ___
 ### 5- Fetching Data (GET Operations)
 #### API Verification Examples
 
-| Operation | Command | Expected Result |
+| Operation | Command | Expected Result & Status Codes |
 | :--- | :--- | :--- |
-| **List All Places** | `curl http://127.0.0.1:5000/places/` | `200 OK` List of all places. |
-| **Get Place Details** | `curl http://127.0.0.1:5000/places/<ID>` | `200 OK` Detailed object with owner/amenities. |
-| **Get Non-existent User** | `curl http://127.0.0.1:5000/users/999` | `404 Not Found`. |
-| **List Place Reviews** | `curl http://127.0.0.1:5000/reviews/places/<ID>/reviews` | `200 OK` List of reviews for that place. |
+| **List All Entities** | `curl http://127.0.0.1:5000/users/` | **200 OK**: Success. Returns a list (even if empty). |
+| **Get Entity Details** | `curl http://127.0.0.1:5000/places/<ID>` | **200 OK**: Success.<br>**404 Not Found**: The specific ID does not exist. |
+| **List Place Reviews** | `curl .../places/<ID>/reviews` | **200 OK**: Success.<br>**404 Not Found**: The Place ID was not found. |
+| **Malformed ID** | `curl http://127.0.0.1:5000/users/abc` | **400 Bad Request**: ID format is invalid (non-UUID). |
 
 ---
 ## Installation and Setup <a name="setup"></a>
@@ -317,11 +318,12 @@ class TestHBnBAPI(unittest.TestCase):
 
 | Test Category | Description | Status |
 | :--- | :--- | :--- |
-| **Functional** | Create, Read, Update, and Delete operations for all entities. | PASS |
-| **Validation** | Rejection of empty strings, invalid emails, and out-of-range numbers. | PASS |
-| **Integrity** | Ensuring a Place cannot be created without a valid Owner ID. | PASS |
-| **Relational** | Deleting a Review correctly removes it from the Place's review list. | PASS |
-| **Error Handling** | API returns appropriate `400`, `404`, and `409` (Conflict) codes. | PASS |
+| **Functional** | Create, Read, Update, and Delete operations for all entities. | **PASS** (200, 201, 204) |
+| **Validation** | Rejection of empty strings, invalid emails, and out-of-range numbers. | **PASS** (400) |
+| **Integrity** | Ensuring a Place cannot be created without a valid Owner ID. | **PASS** (400, 422) |
+| **Relational** | Deleting a Review correctly removes it from the Place's review list. | **PASS** (200, 204) |
+| **Error Handling** | API returns appropriate `400`, `404`, and `409` (Conflict) codes. | **PASS** (400, 404, 409) |
+| **Authentication** | Access control for protected routes (e.g., creating a Place). | **PASS** (401, 403) |
 
 ## Expected Outcome:
 ## By following this testing workflow, the project ensures:
