@@ -1,37 +1,29 @@
-# app/models/review.py
 from __future__ import annotations
 
+from app import db
 from app.models.base_model import BaseModel
-from app.models.validators import require_str, require_int
 
 
 class Review(BaseModel):
-    def __init__(self, text: str, rating: int, place_id: str, user_id: str) -> None:
-        super().__init__()
-        self.text = require_str("text", text)
-        self.rating = require_int("rating", rating)
+    __tablename__ = "reviews"
 
-        if not isinstance(place_id, str) or place_id.strip() == "":
-            raise ValueError("place_id is required")
-        if not isinstance(user_id, str) or user_id.strip() == "":
-            raise ValueError("user_id is required")
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-        self.place_id = place_id.strip()
-        self.user_id = user_id.strip()
+    text = db.Column(db.String(1024), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
 
-        self.validate()
+    # (اختياري للـ API الحالية)
+    user_id = db.Column(db.String(36), nullable=False, index=True)
+    place_id = db.Column(db.Integer, nullable=False, index=True)
 
     def validate(self) -> None:
-        self.text = require_str("text", self.text)
-        self.rating = require_int("rating", self.rating)
-        if not (1 <= self.rating <= 5):
-            raise ValueError("rating must be between 1 and 5")
-
-        if not isinstance(self.place_id, str) or self.place_id.strip() == "":
-            raise ValueError("place_id is required")
-        if not isinstance(self.user_id, str) or self.user_id.strip() == "":
-            raise ValueError("user_id is required")
-
-    def update(self, data: dict) -> None:
-        super().update(data)
-        self.validate()
+        if not self.text or not self.text.strip():
+            raise ValueError("Text is required")
+        if self.rating is None:
+            raise ValueError("Rating is required")
+        if not (1 <= int(self.rating) <= 5):
+            raise ValueError("Rating must be between 1 and 5")
+        if not self.user_id or not str(self.user_id).strip():
+            raise ValueError("User id is required")
+        if self.place_id is None:
+            raise ValueError("Place id is required")

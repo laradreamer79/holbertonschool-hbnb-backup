@@ -1,18 +1,15 @@
-# app/models/amenity.py
 from __future__ import annotations
 
+from app import db
 from app.models.base_model import BaseModel
-from app.models.validators import require_str
 
 
 class Amenity(BaseModel):
-    def __init__(self, name: str) -> None:
-        super().__init__()
-        self.name = require_str("name", name, max_len=50)
+    __tablename__ = "amenities"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(128), nullable=False, unique=True, index=True)
 
     def validate(self) -> None:
-        self.name = require_str("name", self.name, max_len=50)
-
-    def update(self, data: dict) -> None:
-        super().update(data)
-        self.validate()
+        if not self.name or not self.name.strip():
+            raise ValueError("Name is required")

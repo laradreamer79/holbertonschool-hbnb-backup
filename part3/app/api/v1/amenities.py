@@ -14,6 +14,7 @@ amenity_output = api.model("Amenity", {
     "name": fields.String,
     "created_at": fields.String,
     "updated_at": fields.String,
+
 })
 
 def serialize_amenity(a):
@@ -21,7 +22,7 @@ def serialize_amenity(a):
         "id": a.id,
         "name": a.name,
         "created_at": a.created_at.isoformat(),
-        "updated_at": a.updated_at.isoformat(),
+        "updated_at": a.updated_at.isoformat(),        
     }
 
 @api.route("/")

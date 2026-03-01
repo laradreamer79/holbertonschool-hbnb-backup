@@ -8,13 +8,14 @@ from app.models.user import User
 from app.models.place import Place
 from app.models.review import Review
 from app.models.amenity import Amenity
-from app.persistence.repository import InMemoryRepository
+
+from app import db
 class HBnBFacade:
     def __init__(self):
         self.user_repo = UserRepository()      
-        self.place_repo = InMemoryRepository()
-        self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
 
     # ---------- Users ----------
         
@@ -87,10 +88,10 @@ class HBnBFacade:
             return None
 
         if "name" in data:
-            amenity.update({"name": (data.get("name") or "").strip()})
+            amenity.name = (data.get("name") or "").strip()
 
         amenity.validate()
-        amenity.save()
+        db.session.commit()
         return amenity
 
     # ---------- Places ---------- #
@@ -147,40 +148,35 @@ class HBnBFacade:
         place = self.place_repo.get(place_id)
         if not place:
             return None
-
-        patch: Dict[str, Any] = {}
+        
+        data = data or {}
+        
         if "title" in data:
-            patch["title"] = (data.get("title") or "").strip()
+            place.title = (data.get("title") or "").strip()
+
         if "description" in data:
-            patch["description"] = data.get("description") or ""
+            place.description = data.get("description") or ""
+
         if "price" in data:
-            patch["price"] = data.get("price")
+            place.price = data.get("price")
+
         if "latitude" in data:
-            patch["latitude"] = data.get("latitude")
+            place.latitude = data.get("latitude")
+
         if "longitude" in data:
-            patch["longitude"] = data.get("longitude")
+            place.longitude = data.get("longitude")
 
         if "owner_id" in data:
             new_owner = self.user_repo.get(data.get("owner_id"))
             if not new_owner:
                 raise ValueError("Owner not found")
-            patch["owner"] = new_owner
-
-        place.update(patch)
-
-        if "amenity_ids" in data:
-            amenity_ids = data.get("amenity_ids") or []
-            new_amenities: List[Amenity] = []
-            for aid in amenity_ids:
-                a = self.amenity_repo.get(aid)
-                if not a:
-                    raise ValueError(f"Amenity not found: {aid}")
-                new_amenities.append(a)
-            place.amenities = new_amenities
+            place.owner_id = new_owner.id
 
         place.validate()
-        place.save()
-        return place
+        db.session.commit()
+
+        return place        
+        
 
     # ---------- Reviews ----------
     def create_review(self, data: Dict[str, Any]) -> Review:
@@ -216,7 +212,7 @@ class HBnBFacade:
         if not hasattr(place, "review_ids") or place.review_ids is None:
             place.review_ids = []
         place.review_ids.append(created.id)
-        place.save()
+        
 
         return created
     
@@ -230,16 +226,14 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         if not review:
             return None
-
-        patch: Dict[str, Any] = {}
+        data = data or {}
         if "text" in data:
-            patch["text"] = (data.get("text") or "").strip()
+            review.text = (data.get("text") or "").strip()
         if "rating" in data:
-            patch["rating"] = data.get("rating")
+            review.rating = data.get("rating")
 
-        review.update(patch)
         review.validate()
-        review.save()
+        db.session.commit()
         return review
 
     
