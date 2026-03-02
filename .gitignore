@@ -1,9 +1,11 @@
 # Python cache
 __pycache__/
 *.pyc
+.pytest_cache/
 
 # Virtual environment
 venv/
+.venv/
 
 # Mac system files
 .DS_Store
