@@ -172,6 +172,23 @@ class HBnBFacade:
                 raise ValueError("Owner not found")
             place.owner_id = new_owner.id
 
+        if "amenity_ids" in data:
+            ids = data.get("amenity_ids") or []
+
+            new_amenities = []
+            for aid in ids:
+             a = self.amenity_repo.get(aid)
+            if not a:
+                raise ValueError(f"Amenity not found: {aid}")
+            new_amenities.append(a)
+
+        place.amenities = new_amenities    
+            # تحديث قائمة المعرفات الداخلية
+        place.amenity_ids = [a.id for a in new_amenities]
+            
+      
+
+
         place.validate()
         db.session.commit()
 
@@ -193,7 +210,6 @@ class HBnBFacade:
         if not place:
             raise ValueError("Place not found")
 
-        # ✅ أنشئ Review باستخدام IDs (بدل objects)
         review = Review(
             text=text,
             rating=rating,
@@ -201,14 +217,12 @@ class HBnBFacade:
             place_id=place.id,
         )
 
-        # (اختياري) حقن مراجع objects إذا تحتاجينها للعرض فقط
         review.user = user
         review.place = place
 
         review.validate()
         created = self.review_repo.add(review)
 
-        # ✅ اربطي الـ review بالـ place عن طريق IDs بدل objects
         if not hasattr(place, "review_ids") or place.review_ids is None:
             place.review_ids = []
         place.review_ids.append(created.id)
@@ -252,7 +266,6 @@ class HBnBFacade:
         if not review:
             return False
 
-        # نحذف الربط من place.review_ids
         place_id = getattr(review, "place_id", None)
         if place_id:
             place = self.place_repo.get(place_id)
@@ -262,7 +275,6 @@ class HBnBFacade:
                 ]
                 place.save()
 
-        # نحذف من الريبو
         self.review_repo.delete(review_id)
         return True
 facade = HBnBFacade()

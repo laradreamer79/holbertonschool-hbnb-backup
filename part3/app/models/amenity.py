@@ -8,7 +8,6 @@ from app.models.associations import place_amenities
 class Amenity(BaseModel):
     __tablename__ = "amenities"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), nullable=False, unique=True, index=True)
     
     places = db.relationship(

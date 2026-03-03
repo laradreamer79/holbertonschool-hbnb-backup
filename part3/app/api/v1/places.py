@@ -37,6 +37,7 @@ place_output = api.model("PlaceOutput", {
     "latitude": fields.Float(required=True),
     "longitude": fields.Float(required=True),
     "owner_id": fields.String(required=True),
+    "amenities": fields.List(fields.Raw),
     "created_at": fields.String,
     "updated_at": fields.String,
 })
@@ -50,6 +51,7 @@ def serialize_place(p):
         "latitude": p.latitude,
         "longitude": p.longitude,
         "owner_id": p.owner_id,
+        "amenities": [{"id": a.id, "name": a.name} for a in (p.amenities or [])],
         "created_at": p.created_at.isoformat() if p.created_at else None,
         "updated_at": p.updated_at.isoformat() if p.updated_at else None,
     }
